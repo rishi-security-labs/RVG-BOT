@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RVG Gourmet Delivery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary: #FF3B30;
+      --primary-soft: #FFF1F0;
+      --phonepe: #5f259f;
+      --bg: #F8F9FC;
+      --surface: #FFFFFF;
+      --surface-elevated: #F1F4F9;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --accent: #10B981;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+      --radius-md: 16px;
+      --radius-lg: 24px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 84px;
+    }
+
+    .header {
+      background: var(--surface);
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-info-loc { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-user-title { font-size: 16px; font-weight: 800; color: var(--text); margin-top: 2px; }
+    .header-avatar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-elevated);
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .header-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    .search-box-wrap { padding: 12px 16px 0; position: relative; }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px 10px 38px;
+      font-family: inherit;
+      font-size: 13.5px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon-pos { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    .banner {
+      margin: 14px 16px 0;
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .banner-tag {
+      background: rgba(255, 59, 48, 0.2);
+      border: 1px solid rgba(255, 59, 48, 0.4);
+      color: #FF6B6B;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .banner h3 { font-size: 17px; font-weight: 800; margin-bottom: 3px; }
+    .banner p { font-size: 11.5px; color: #94A3B8; }
+
+    .cat-scroll { display: flex; gap: 8px; padding: 14px 16px 10px; overflow-x: auto; scrollbar-width: none; }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+    .cat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .cat-pill.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+    .menu-container { padding: 6px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+    .food-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+    }
+    .food-content { flex: 1; min-width: 0; }
+    .veg-dot {
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid var(--accent);
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .veg-dot::after { content: ""; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+    .food-name { font-size: 14.5px; font-weight: 800; color: var(--text); }
+    .food-price { font-size: 14.5px; font-weight: 800; color: #1E293B; margin-top: 2px; }
+    .food-rating { font-size: 11px; font-weight: 700; color: #F59E0B; margin: 3px 0; }
+    .food-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.35; }
+
+    .food-media { display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-width: 98px; }
+    .food-img-wrapper { width: 98px; height: 98px; border-radius: 12px; overflow: hidden; background: var(--surface-elevated); }
+    .food-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .stepper-wrap { margin-top: -16px; z-index: 2; }
+    .btn-add-food {
+      background: var(--surface);
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 12px;
+      padding: 5px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 59, 48, 0.15);
+    }
+    .stepper { background: var(--primary); color: #fff; display: flex; align-items: center; border-radius: 8px; }
+    .stepper button { background: none; border: none; color: white; font-weight: 900; font-size: 14px; width: 26px; height: 26px; cursor: pointer; }
+    .stepper span { font-size: 12px; font-weight: 800; padding: 0 4px; }
+
+    .floating-cart {
+      position: fixed;
+      bottom: 74px;
+      left: 16px;
+      right: 16px;
+      max-width: 448px;
+      margin: 0 auto;
+      background: #0F172A;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      z-index: 60;
+    }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; }
+    .modal-box {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 22px 22px 0 0;
+      padding: 20px;
+      z-index: 101;
+      display: none;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .input-control {
+      width: 100%;
+      background: var(--surface-elevated);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13.5px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .input-control:focus { border-color: var(--primary); }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .pay-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .pay-app-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      color: white;
+      text-decoration: none;
+    }
+    .btn-phonepe { background: #5f259f; }
+
+    .qr-container {
+      background: var(--surface-elevated);
+      border: 1.5px dashed var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #qrcodeCanvas {
+      padding: 8px;
+      background: #fff;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: var(--shadow-sm);
+    }
+    #customQrContainer img {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #fff;
+      padding: 6px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 50;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #94A3B8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      text-decoration: none;
+    }
+    .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+    .nav-btn.active { color: var(--primary); }
+
+    .tab-view { display: none; }
+    .tab-view.active-tab { display: block; }
+
+    .order-item-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+    .status-badge { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+    .status-Pending { background: #FEF3C7; color: #D97706; }
+    .status-Preparing { background: #DBEAFE; color: #2563EB; }
+    .status-Delivered { background: #D1FAE5; color: #059669; }
+    .status-Cancelled { background: #FEE2E2; color: #DC2626; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <div class="header-info-loc">📍 Gourmet Kitchen</div>
+      <div class="header-user-title" id="headerNameDisplay">Welcome Foodie</div>
+    </div>
+    <div class="header-avatar-btn" onclick="switchTab('profile', document.querySelectorAll('.nav-btn')[2])">
+      <img id="headerAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="DP">
+    </div>
+  </header>
+
+  <!-- TAB 1: MENU STORE -->
+  <main id="tab-home" class="tab-view active-tab">
+    <div class="search-box-wrap">
+      <span class="search-icon-pos">🔍</span>
+      <input type="text" id="userMenuSearch" class="search-input" placeholder="Search dishes, burgers, pizzas..." oninput="handleUserSearch()">
+    </div>
+
+    <div class="banner">
+      <div class="banner-tag">EXCLUSIVE BITE</div>
+      <h3>Fresh Flavours, Fast Delivery</h3>
+      <p>Hand-kneaded dough, organic produce & cold brews</p>
+    </div>
+
+    <div class="cat-scroll">
+      <div class="cat-pill active" onclick="filterCategory('All', this)">All Offerings</div>
+      <div class="cat-pill" onclick="filterCategory('Pizza', this)">🍕 Pizzas</div>
+      <div class="cat-pill" onclick="filterCategory('Burger', this)">🍔 Burgers</div>
+      <div class="cat-pill" onclick="filterCategory('Drinks', this)">🥤 Drinks</div>
+    </div>
+
+    <div class="menu-container" id="menuContainer"></div>
+  </main>
+
+  <!-- TAB 2: MY ORDERS -->
+  <section id="tab-orders" class="tab-view" style="padding: 16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+      <h3 style="font-size:17px; font-weight:800;">My Orders</h3>
+      <button onclick="loadUserOrders()" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:12px; cursor:pointer;">🔄 Refresh</button>
+    </div>
+    <div id="ordersContainer"></div>
+  </section>
+
+  <!-- TAB 3: USER PROFILE -->
+  <section id="tab-profile" class="tab-view" style="padding: 16px;">
+    <div id="authBox" style="background: white; border:1px solid var(--border); border-radius: 20px; padding: 20px;">
+      <div style="display:flex; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+        <button id="authTabLogin" style="flex:1; background:none; border:none; font-weight:800; font-size:15px; color:var(--primary); cursor:pointer;" onclick="toggleAuthMode('login')">Login</button>
+        <button id="authTabReg" style="flex:1; background:none; border:none; font-weight:800; font-size:15px; color:var(--text-muted); cursor:pointer;" onclick="toggleAuthMode('reg')">Register</button>
+      </div>
+
+      <div id="regField" style="display:none;">
+        <input id="authName" class="input-control" placeholder="Full Name">
+        <input id="authAddress" class="input-control" placeholder="Delivery Address">
+      </div>
+
+      <input id="authPhone" type="tel" class="input-control" placeholder="Phone Number">
+      <input id="authPassword" type="password" class="input-control" placeholder="Password">
+      <button id="authSubmitBtn" class="btn-submit" onclick="submitAuth()">Sign In</button>
+    </div>
+
+    <div id="dashboardBox" style="display: none;">
+      <div style="background: white; border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 14px;">
+        <img id="profileDpImg" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);" src="" alt="DP">
+        <div id="dashName" style="font-size: 18px; font-weight: 800; margin-top: 6px;"></div>
+        <div id="dashPhone" style="font-size: 13px; color: var(--text-muted);"></div>
+        <div id="dashAddress" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;"></div>
+      </div>
+      <button class="btn-submit" style="background: #0F172A;" onclick="logoutUser()">Sign Out</button>
+    </div>
+  </section>
+
+  <!-- FLOATING CART -->
+  <div id="floatingCart" class="floating-cart" onclick="openCheckout()">
+    <div>
+      <div id="cartCountTxt" style="font-size:12px; opacity:0.85;">0 items added</div>
+      <div style="font-size:16px; font-weight:800;">₹<span id="cartTotalPrice">0</span></div>
+    </div>
+    <div style="color: #FF6B81; font-weight:800; font-size:14px;">Review &amp; Pay ➔</div>
+  </div>
+
+  <!-- CHECKOUT MODAL SHEET -->
+  <div id="checkoutOverlay" class="modal-overlay" onclick="closeCheckout()"></div>
+  <div id="checkoutSheet" class="modal-box">
+    <div style="display:flex; justify-content:space-between; margin-bottom:14px;">
+      <h3 style="font-size:16px;">Order Checkout</h3>
+      <button onclick="closeCheckout()" style="border:none; background:#f1f2f6; width:28px; height:28px; border-radius:50%; font-weight:bold;">✕</button>
+    </div>
+    <div id="sheetItemsContainer" style="margin-bottom: 12px;"></div>
+    <div style="border-top:1.5px dashed var(--border); padding-top:10px; margin-bottom:12px; display:flex; justify-content:space-between; font-weight:800;">
+      <span>Total Amount:</span>
+      <span style="color:var(--primary); font-size:16px;">₹<span id="sheetPayableTotal">0</span></span>
+    </div>
+    <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Delivery Address</label>
+    <input id="checkoutAddress" class="input-control" placeholder="House/Flat, Road, Area">
+    
+    <button class="btn-submit" onclick="proceedToPayment()">Proceed to Pay 💳</button>
+  </div>
+
+  <!-- PAYMENT GATEWAY MODAL (STRICT 12-DIGIT UTR REQUIRED) -->
+  <div id="payOverlay" class="modal-overlay" onclick="closePayModal()"></div>
+  <div id="payModal" class="modal-box">
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+      <h3 style="font-size:16px;">Pay &amp; Verify UTR</h3>
+      <button onclick="closePayModal()" style="border:none; background:#f1f2f6; width:28px; height:28px; border-radius:50%; font-weight:bold;">✕</button>
+    </div>
+
+    <!-- DIRECT APP BUTTON -->
+    <div class="pay-btn-group">
+      <button class="pay-app-btn btn-phonepe" onclick="openDirectUpi()">
+        <span>⚡ Open PhonePe / GPay Directly</span>
+      </button>
+    </div>
+
+    <!-- QR CODE CONTAINER -->
+    <div class="qr-container">
+      <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Scan with Any Scanner / UPI App</div>
+      <div id="customQrContainer" style="display:none;">
+        <img id="adminCustomQrImg" src="" alt="Admin Custom QR">
+      </div>
+      <div id="qrcodeCanvas"></div>
+      <div style="font-size:16px; font-weight:800; margin-top:10px; color:var(--text);">Amount: ₹<span id="qrAmount">0</span></div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">UPI: <b id="qrVpa" style="color:var(--primary);"></b></div>
+    </div>
+
+    <!-- STRICT UTR INPUT FORM -->
+    <div style="margin-top:12px;">
+      <label style="font-size:12px; font-weight:800; color:#EF4444; display:flex; justify-content:space-between;">
+        <span>Enter 12-Digit UPI Ref / UTR No. *</span>
+        <span id="utrCharCount" style="color:var(--text-muted); font-size:11px;">0/12</span>
+      </label>
+      <input id="upiTxnId" class="input-control" type="tel" maxlength="12" placeholder="e.g. 428192837461" oninput="validateUtrInput(this)" style="font-size:16px; letter-spacing:2px; font-weight:800; text-align:center;">
+      <div id="utrHelperText" style="font-size:11px; color:var(--text-muted); margin-top:-6px; margin-bottom:10px;">
+        ⚠️ Payment karne ke baad PhonePe receipt me se 12 anko ka UTR dalein.
+      </div>
+
+      <button id="btnVerifyPay" class="btn-submit" style="background:#10B981;" onclick="confirmPaidOrder()">
+        ✓ Submit UTR &amp; Place Order
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('home', this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Menu</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('orders', this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      <span>Orders</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('profile', this)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <script>
+    let MENU = [];
+    let cart = {};
+    let currentCategory = "All";
+    let currentUser = null;
+    let authMode = "login";
+    let activePaymentData = null;
+    let searchQuery = "";
+    let qrInstance = null;
+
+    const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80";
+
+    async function checkAuth() {
+      const res = await fetch('/api/auth/current');
+      const d = await res.json();
+      if (d.logged_in) {
+        currentUser = d.user;
+        const dp = currentUser.avatar || DEFAULT_AVATAR;
+        document.getElementById("headerNameDisplay").innerText = currentUser.name.split(" ")[0];
+        document.getElementById("headerAvatarImg").src = dp;
+        document.getElementById("profileDpImg").src = dp;
+        document.getElementById("dashName").innerText = currentUser.name;
+        document.getElementById("dashPhone").innerText = currentUser.phone;
+        document.getElementById("dashAddress").innerText = `📍 ${currentUser.address || 'No address'}`;
+        document.getElementById("checkoutAddress").value = currentUser.address || '';
+        document.getElementById("authBox").style.display = "none";
+        document.getElementById("dashboardBox").style.display = "block";
+        loadUserOrders();
+      } else {
+        currentUser = null;
+        document.getElementById("headerNameDisplay").innerText = "Welcome Foodie";
+        document.getElementById("headerAvatarImg").src = DEFAULT_AVATAR;
+        document.getElementById("authBox").style.display = "block";
+        document.getElementById("dashboardBox").style.display = "none";
+      }
+    }
+
+    function toggleAuthMode(mode) {
+      authMode = mode;
+      if (mode === 'login') {
+        document.getElementById("authTabLogin").style.color = "var(--primary)";
+        document.getElementById("authTabReg").style.color = "var(--text-muted)";
+        document.getElementById("regField").style.display = "none";
+        document.getElementById("authSubmitBtn").innerText = "Sign In";
+      } else {
+        document.getElementById("authTabReg").style.color = "var(--primary)";
+        document.getElementById("authTabLogin").style.color = "var(--text-muted)";
+        document.getElementById("regField").style.display = "block";
+        document.getElementById("authSubmitBtn").innerText = "Create Account";
+      }
+    }
+
+    async function submitAuth() {
+      const phone = document.getElementById("authPhone").value.trim();
+      const password = document.getElementById("authPassword").value.trim();
+      if (!phone || !password) return alert("Phone aur Password daliye!");
+
+      let endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      let payload = { phone, password };
+      if (authMode === 'reg') {
+        payload.name = document.getElementById("authName").value.trim();
+        payload.address = document.getElementById("authAddress").value.trim();
+        if (!payload.name) return alert("Full Name likhiye!");
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const d = await res.json();
+      if (d.success) {
+        checkAuth();
+        switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+      } else {
+        alert(d.message);
+      }
+    }
+
+    async function logoutUser() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      checkAuth();
+    }
+
+    async function loadMenu() {
+      const res = await fetch('/api/menu');
+      MENU = await res.json();
+      renderMenu();
+    }
+
+    function handleUserSearch() {
+      searchQuery = document.getElementById("userMenuSearch").value.toLowerCase().trim();
+      renderMenu();
+    }
+
+    function renderMenu() {
+      const el = document.getElementById("menuContainer");
+      el.innerHTML = "";
+
+      const filtered = MENU.filter(it => {
+        const matchesCategory = (currentCategory === "All" || it.category === currentCategory);
+        const matchesQuery = (!searchQuery || it.name.toLowerCase().includes(searchQuery) || (it.desc && it.desc.toLowerCase().includes(searchQuery)));
+        return matchesCategory && matchesQuery;
+      });
+
+      if (!filtered.length) {
+        el.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">No items match query.</div>';
+        return;
+      }
+
+      filtered.forEach(it => {
+        const qty = cart[it.id] || 0;
+        const card = document.createElement("div");
+        card.className = "food-card";
+        card.innerHTML = `
+          <div class="food-content">
+            <div class="veg-dot"></div>
+            <div class="food-name">${it.name}</div>
+            <div class="food-price">₹${it.price}</div>
+            <div class="food-rating">${it.rating || '4.8 ★'} • 20 mins</div>
+            <div class="food-desc">${it.desc}</div>
+          </div>
+          <div class="food-media">
+            <div class="food-img-wrapper">
+              <img src="${it.img}" alt="${it.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'">
+            </div>
+            <div class="stepper-wrap">
+              ${qty === 0 
+                ? `<button class="btn-add-food" onclick="modifyQty(${it.id}, 1)">ADD</button>` 
+                : `<div class="stepper">
+                     <button onclick="modifyQty(${it.id}, -1)">−</button>
+                     <span>${qty}</span>
+                     <button onclick="modifyQty(${it.id}, 1)">+</button>
+                   </div>`
+              }
+            </div>
+          </div>
+        `;
+        el.appendChild(card);
+      });
+    }
+
+    function modifyQty(id, diff) {
+      cart[id] = (cart[id] || 0) + diff;
+      if (cart[id] <= 0) delete cart[id];
+      renderMenu();
+      updateCart();
+    }
+
+    function filterCategory(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll(".cat-pill").forEach(c => c.classList.remove("active"));
+      el.classList.add("active");
+      renderMenu();
+    }
+
+    function updateCart() {
+      let total = 0, count = 0;
+      for (let id in cart) {
+        const item = MENU.find(x => x.id == id);
+        if (item) {
+          total += item.price * cart[id];
+          count += cart[id];
+        }
+      }
+      const bar = document.getElementById("floatingCart");
+      if (count > 0) {
+        bar.style.display = "flex";
+        document.getElementById("cartCountTxt").innerText = `${count} item${count > 1 ? 's' : ''} added`;
+        document.getElementById("cartTotalPrice").innerText = total;
+      } else {
+        bar.style.display = "none";
+        closeCheckout();
+      }
+    }
+
+    function openCheckout() {
+      if (!currentUser) {
+        alert("Pehle Login kijiye!");
+        switchTab('profile', document.querySelectorAll('.nav-btn')[2]);
+        return;
+      }
+      const sheet = document.getElementById("sheetItemsContainer");
+      sheet.innerHTML = "";
+      let total = 0;
+      for (let id in cart) {
+        const item = MENU.find(x => x.id == id);
+        if (item) {
+          total += item.price * cart[id];
+          sheet.innerHTML += `
+            <div style="display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border);">
+              <span><b>${item.name}</b> x ${cart[id]}</span>
+              <span style="font-weight:700;">₹${item.price * cart[id]}</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById("sheetPayableTotal").innerText = total;
+      document.getElementById("checkoutOverlay").style.display = "block";
+      document.getElementById("checkoutSheet").style.display = "block";
+    }
+
+    function closeCheckout() {
+      document.getElementById("checkoutOverlay").style.display = "none";
+      document.getElementById("checkoutSheet").style.display = "none";
+    }
+
+    async function proceedToPayment() {
+      const address = document.getElementById("checkoutAddress").value.trim();
+      if (!address) return alert("Delivery Address fill kijiye!");
+
+      const res = await fetch('/api/payment/generate-upi', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ items: cart })
+      });
+      const data = await res.json();
+      if (!data.success) return alert(data.message);
+
+      activePaymentData = data;
+      closeCheckout();
+
+      document.getElementById("qrAmount").innerText = data.amount;
+      document.getElementById("qrVpa").innerText = data.vpa;
+
+      const customBox = document.getElementById("customQrContainer");
+      const clientQrBox = document.getElementById("qrcodeCanvas");
+
+      if (data.custom_qr) {
+        document.getElementById("adminCustomQrImg").src = data.custom_qr;
+        customBox.style.display = "block";
+        clientQrBox.style.display = "none";
+      } else {
+        customBox.style.display = "none";
+        clientQrBox.style.display = "inline-block";
+        clientQrBox.innerHTML = "";
+        qrInstance = new QRCode(clientQrBox, {
+          text: data.upi_url,
+          width: 170,
+          height: 170,
+          colorDark : "#000000",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.M
+        });
+      }
+
+      document.getElementById("upiTxnId").value = "";
+      document.getElementById("utrCharCount").innerText = "0/12";
+      document.getElementById("payOverlay").style.display = "block";
+      document.getElementById("payModal").style.display = "block";
+    }
+
+    function openDirectUpi() {
+      if (!activePaymentData || !activePaymentData.upi_url) return;
+      window.location.href = activePaymentData.upi_url;
+    }
+
+    function closePayModal() {
+      document.getElementById("payOverlay").style.display = "none";
+      document.getElementById("payModal").style.display = "none";
+    }
+
+    // STRICT REAL-TIME INPUT VALIDATION
+    function validateUtrInput(input) {
+      input.value = input.value.replace(/\D/g, '').slice(0, 12);
+      document.getElementById("utrCharCount").innerText = `${input.value.length}/12`;
+      if (input.value.length === 12) {
+        document.getElementById("utrHelperText").innerText = "✅ 12-digit format valid! Click button to place order.";
+        document.getElementById("utrHelperText").style.color = "#10B981";
+      } else {
+        document.getElementById("utrHelperText").innerText = "⚠️ Kripya poore 12 anko (digits) ka UTR no enter karein.";
+        document.getElementById("utrHelperText").style.color = "var(--text-muted)";
+      }
+    }
+
+    async function confirmPaidOrder() {
+      if (!activePaymentData) return;
+      const utr = document.getElementById("upiTxnId").value.trim();
+      const address = document.getElementById("checkoutAddress").value.trim();
+
+      // STRICT FRONTEND CHECKS
+      if (!utr) {
+        alert("❌ UTR number anivarya hai! Kripya payment karke 12-digit UTR enter karein.");
+        return;
+      }
+      if (utr.length !== 12 || !/^\d{12}$/.test(utr)) {
+        alert("❌ Galat UTR! UTR exactly 12 digits ka hona chahiye (jaise: 428192837461).");
+        return;
+      }
+
+      const btn = document.getElementById("btnVerifyPay");
+      btn.innerText = "Verifying UTR...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/place-order', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            order_ref: activePaymentData.order_ref,
+            customer: { name: currentUser.name, address: address },
+            items: cart,
+            payment_mode: "UPI / PhonePe",
+            txn_id: utr
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          cart = {};
+          closePayModal();
+          renderMenu();
+          updateCart();
+          switchTab('orders', document.querySelectorAll('.nav-btn')[1]);
+          alert(`🎉 Order Placed! ID: #${d.order_id}\nPayment status: Awaiting kitchen verification.`);
+        } else {
+          alert(`❌ Order Refused: ${d.message}`);
+        }
+      } catch (e) {
+        alert("Server validation issue. Please retry.");
+      } finally {
+        btn.innerText = "✓ Submit UTR & Place Order";
+        btn.disabled = false;
+      }
+    }
+
+    function switchTab(tab, el) {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      if (el) el.classList.add("active");
+      document.querySelectorAll(".tab-view").forEach(t => t.classList.remove("active-tab"));
+      document.getElementById(`tab-${tab}`).classList.add("active-tab");
+      if (tab === 'orders') loadUserOrders();
+    }
+
+    async function loadUserOrders() {
+      if (!currentUser) return;
+      const res = await fetch('/api/user/orders');
+      const orders = await res.json();
+      const el = document.getElementById("ordersContainer");
+      if (!orders.length) {
+        el.innerHTML = "<p style='text-align:center; padding:30px; color:var(--text-muted); font-size:13px;'>No past orders found.</p>";
+        return;
+      }
+
+      el.innerHTML = orders.map(o => `
+        <div class="order-item-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:700; color:var(--text-muted);">#${o.order_id}</span>
+            <span class="status-badge status-${o.status.split(' ')[0]}">${o.status}</span>
+          </div>
+          <div style="font-size:13.5px; font-weight:700; margin-bottom:4px; color:#1E293B;">${o.items}</div>
+          <div style="font-size:11px; color:#64748B; margin-bottom:6px;">
+            UTR: <b style="color:#0F172A; letter-spacing:1px;">${o.txn_id}</b>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12.5px; border-top:1px dashed var(--border); padding-top:8px;">
+            <span style="color:var(--text-muted);">${o.created_at}</span>
+            <b style="color:var(--primary); font-size:15px;">₹${o.total}</b>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    checkAuth();
+    loadMenu();
+  </script>
+</body>
+</html>

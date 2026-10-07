@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RVG Kitchen Partner Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FF3B30;
+      --bg: #0B0F19;
+      --surface: #151D30;
+      --surface-card: #1C263D;
+      --border: #263352;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --success: #10B981;
+      --warning: #F59E0B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 84px;
+    }
+
+    .top-header {
+      background: var(--surface);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .brand-title { font-size: 15px; font-weight: 800; }
+    .brand-title span { color: var(--primary); }
+    .btn-logout-admin {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #EF4444;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .admin-auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 15, 25, 0.96);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .admin-auth-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 26px 20px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .tab-view { display: none; padding: 14px; }
+    .tab-view.active-tab { display: block; }
+
+    .sec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .sec-title { font-size: 13.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+
+    .admin-search-input {
+      width: 100%;
+      background: var(--surface-card);
+      border: 1.5px solid var(--border);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .admin-search-input:focus { border-color: var(--primary); }
+
+    .order-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 15px;
+      margin-bottom: 12px;
+    }
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .order-id { font-size: 13px; font-weight: 800; color: #fff; }
+    .order-time { font-size: 11px; color: var(--text-muted); }
+    .order-user { font-size: 13.5px; font-weight: 800; margin-bottom: 2px; }
+    .order-address { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.35; }
+    .order-items {
+      background: var(--surface-card);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      color: #38BDF8;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    /* UTR HIGHLIGHT ON ADMIN TICKET */
+    .utr-badge-box {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 7px 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .order-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-price { font-size: 16px; font-weight: 800; color: var(--success); }
+    .status-select {
+      background: var(--bg);
+      color: #fff;
+      border: 1.5px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .menu-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .menu-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: var(--surface-card);
+    }
+    .menu-details { flex: 1; min-width: 0; }
+    .menu-name { font-size: 13.5px; font-weight: 800; color: #fff; }
+    .menu-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+    .user-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-dp {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border);
+      background: var(--surface-card);
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13.5px; font-weight: 800; color: #fff; }
+    .user-phone { font-size: 11.5px; color: var(--text-muted); }
+    .user-tag { font-size: 10px; font-weight: 800; margin-top: 2px; }
+
+    .input-box {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      width: 100%;
+      margin-bottom: 8px;
+      outline: none;
+    }
+    .input-box:focus { border-color: var(--primary); }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-action {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-del {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #EF4444;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-edit {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38BDF8;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .qr-preview-box {
+      width: 140px;
+      height: 140px;
+      border-radius: 12px;
+      background: var(--surface-card);
+      border: 1.5px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto;
+      overflow: hidden;
+    }
+    .qr-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 6px;
+      z-index: 50;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      text-decoration: none;
+    }
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+    .nav-btn.active { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN LOGIN GATE -->
+  <div id="adminAuthOverlay" class="admin-auth-overlay">
+    <div class="admin-auth-box">
+      <div style="font-size: 34px; margin-bottom: 8px;">🔐</div>
+      <h3 style="margin: 0 0 6px; font-size: 18px;">Admin Security Gate</h3>
+      <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">Only authorized managers can enter</p>
+      
+      <input type="text" id="adminUserInp" class="input-box" placeholder="Admin Username (admin)">
+      <input type="password" id="adminPassInp" class="input-box" placeholder="Password (rvg@123)">
+      
+      <button class="btn-action" style="width: 100%; padding: 12px; margin-top: 4px;" onclick="performAdminLogin()">Unlock Dashboard</button>
+      <div id="authErrMsg" style="color: #EF4444; font-size: 11.5px; font-weight: 700; margin-top: 10px; display: none;"></div>
+    </div>
+  </div>
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand-title">RVG <span>ADMIN</span></div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="btn-logout-admin" onclick="performAdminLogout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- TAB 1: LIVE ORDERS WITH UTR VERIFY -->
+  <main id="tab-orders" class="tab-view active-tab">
+    <div class="sec-head">
+      <div class="sec-title">Live Preparing Orders</div>
+      <button onclick="loadOrders()" style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer;">🔄 Refresh</button>
+    </div>
+    <input type="text" id="liveSearchInput" class="admin-search-input" placeholder="🔍 Search Phone Number or 12-Digit UTR..." oninput="renderLiveOrders()">
+    <div id="liveOrdersContainer"></div>
+  </main>
+
+  <!-- TAB 2: DELIVERED HISTORY -->
+  <section id="tab-history" class="tab-view">
+    <div class="sec-head">
+      <div class="sec-title">Delivered History</div>
+      <button onclick="loadOrders()" style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer;">🔄 Refresh</button>
+    </div>
+    <input type="text" id="historySearchInput" class="admin-search-input" placeholder="🔍 Search Phone Number or UTR..." oninput="renderHistoryOrders()">
+    <div id="historyOrdersContainer"></div>
+  </section>
+
+  <!-- TAB 3: MENU ITEMS -->
+  <section id="tab-menu" class="tab-view">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:14px;">
+      <div class="sec-title" id="menuFormTitle" style="margin-bottom:8px;">Add New Food Dish</div>
+      <input type="hidden" id="menuId">
+      <div class="input-row">
+        <input id="menuName" class="input-box" placeholder="Item Name">
+        <select id="menuCategory" class="input-box">
+          <option value="Pizza">Pizza</option>
+          <option value="Burger">Burger</option>
+          <option value="Drinks">Drinks</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <input id="menuPrice" type="number" class="input-box" placeholder="Price (₹)">
+        <input id="menuImg" class="input-box" placeholder="Image URL (https://...)">
+      </div>
+      <input id="menuDesc" class="input-box" placeholder="Item short description">
+      <div style="display:flex; gap:8px;">
+        <button id="saveMenuBtn" class="btn-action" onclick="saveMenuItem()">+ Add Dish</button>
+        <button id="cancelMenuBtn" class="btn-action" style="background:var(--surface-card); display:none;" onclick="resetMenuForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="sec-title" style="margin-bottom:8px;">Active Menu Items</div>
+    <input type="text" id="menuSearchInput" class="admin-search-input" placeholder="🔍 Search dish by name or category..." oninput="renderMenuItems()">
+    <div id="menuContainer"></div>
+  </section>
+
+  <!-- TAB 4: USERS -->
+  <section id="tab-users" class="tab-view">
+    <div class="sec-head">
+      <div class="sec-title">Registered Customers</div>
+      <button onclick="loadUsers()" style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer;">🔄 Refresh</button>
+    </div>
+    <input type="text" id="userSearchInput" class="admin-search-input" placeholder="🔍 Search customer by Phone or Name..." oninput="renderUsersList()">
+    <div id="usersContainer"></div>
+  </section>
+
+  <!-- TAB 5: UPI & QR SETTINGS -->
+  <section id="tab-settings" class="tab-view">
+    <div class="sec-head">
+      <div class="sec-title">Payment &amp; QR Settings</div>
+    </div>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px;">
+      <label style="font-size:11.5px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">UPI ID (Receiving VPA)</label>
+      <input id="settingUpiVpa" class="input-box" placeholder="e.g. 9876543210@ybl">
+
+      <label style="font-size:11.5px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; margin-top:6px;">Business / Payee Name</label>
+      <input id="settingPayeeName" class="input-box" placeholder="e.g. RVG Restaurant">
+
+      <label style="font-size:11.5px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px; margin-top:8px;">Custom Payment Scanner QR Code</label>
+      <div class="qr-preview-box">
+        <img id="settingQrPreview" src="" alt="No Custom QR Uploaded" style="display:none;">
+        <span id="noQrText" style="color:var(--text-muted); font-size:11px; text-align:center; padding:10px;">No custom QR uploaded</span>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <label class="btn-action" style="flex:1; text-align:center; cursor:pointer;">
+          📁 Upload QR from Gallery
+          <input type="file" id="qrFileInput" accept="image/*" style="display:none;" onchange="handleAdminQrUpload(event)">
+        </label>
+        <button class="btn-del" onclick="removeCustomQr()">Remove</button>
+      </div>
+
+      <button class="btn-action" style="width:100%; margin-top:14px; padding:12px; background:#10B981;" onclick="savePaymentSettings()">
+        💾 Save UPI &amp; QR Settings
+      </button>
+    </div>
+  </section>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('orders', this)">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      <span>Live</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('history', this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      <span>History</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('menu', this)">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+      <span>Menu</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('users', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+      <span>Users</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('settings', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <script>
+    const DEFAULT_USER_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80";
+    const DEFAULT_FOOD_IMAGE = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80";
+
+    let rawOrders = [];
+    let rawMenuItems = [];
+    let rawUsersList = [];
+    let currentUploadedQr = "";
+
+    async function verifyAdminAccess() {
+      const res = await fetch('/api/admin/status');
+      const d = await res.json();
+      if (d.authenticated) {
+        document.getElementById("adminAuthOverlay").style.display = "none";
+        loadOrders();
+        loadMenu();
+        loadUsers();
+        loadSettings();
+      } else {
+        document.getElementById("adminAuthOverlay").style.display = "flex";
+      }
+    }
+
+    async function performAdminLogin() {
+      const username = document.getElementById("adminUserInp").value.trim();
+      const password = document.getElementById("adminPassInp").value.trim();
+      const err = document.getElementById("authErrMsg");
+
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password })
+      });
+      const d = await res.json();
+      if (d.success) {
+        err.style.display = "none";
+        document.getElementById("adminAuthOverlay").style.display = "none";
+        loadOrders();
+        loadMenu();
+        loadUsers();
+        loadSettings();
+      } else {
+        err.innerText = d.message || "Invalid Credentials!";
+        err.style.display = "block";
+      }
+    }
+
+    async function performAdminLogout() {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      document.getElementById("adminAuthOverlay").style.display = "flex";
+      document.getElementById("adminUserInp").value = "";
+      document.getElementById("adminPassInp").value = "";
+    }
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      el.classList.add("active");
+      document.querySelectorAll(".tab-view").forEach(t => t.classList.remove("active-tab"));
+      document.getElementById(`tab-${tabId}`).classList.add("active-tab");
+
+      if (tabId === 'orders' || tabId === 'history') loadOrders();
+      if (tabId === 'menu') loadMenu();
+      if (tabId === 'users') loadUsers();
+      if (tabId === 'settings') loadSettings();
+    }
+
+    async function loadOrders() {
+      const res = await fetch('/api/admin/orders');
+      if (res.status === 401) return verifyAdminAccess();
+      rawOrders = await res.json();
+      renderLiveOrders();
+      renderHistoryOrders();
+    }
+
+    function renderLiveOrders() {
+      const q = document.getElementById("liveSearchInput").value.trim().toLowerCase();
+      const liveOrders = rawOrders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
+
+      const filtered = liveOrders.filter(o => {
+        return (!q || (o.phone && o.phone.toLowerCase().includes(q)) || (o.txn_id && o.txn_id.toLowerCase().includes(q)) || (o.order_id && o.order_id.toLowerCase().includes(q)) || (o.customer_name && o.customer_name.toLowerCase().includes(q)));
+      });
+
+      const con = document.getElementById("liveOrdersContainer");
+      if (!filtered.length) {
+        con.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:12.5px;">No active orders match query.</div>';
+      } else {
+        con.innerHTML = filtered.map(o => renderOrderCard(o, false)).join("");
+      }
+    }
+
+    function renderHistoryOrders() {
+      const q = document.getElementById("historySearchInput").value.trim().toLowerCase();
+      const historyOrders = rawOrders.filter(o => o.status === 'Delivered' || o.status === 'Cancelled');
+
+      const filtered = historyOrders.filter(o => {
+        return (!q || (o.phone && o.phone.toLowerCase().includes(q)) || (o.txn_id && o.txn_id.toLowerCase().includes(q)) || (o.order_id && o.order_id.toLowerCase().includes(q)) || (o.customer_name && o.customer_name.toLowerCase().includes(q)));
+      });
+
+      const con = document.getElementById("historyOrdersContainer");
+      if (!filtered.length) {
+        con.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:12.5px;">No history records match query.</div>';
+      } else {
+        con.innerHTML = filtered.map(o => renderOrderCard(o, true)).join("");
+      }
+    }
+
+    function renderOrderCard(o, isHistory) {
+      const isPending = o.status === 'Payment Pending';
+      return `
+        <div class="order-card" style="${isPending ? 'border:1.5px solid #F59E0B;' : ''}">
+          <div class="order-head">
+            <span class="order-id">#${o.order_id}</span>
+            <span class="order-time">${o.created_at}</span>
+          </div>
+          <div class="order-user">${o.customer_name} • <span style="color:var(--text-muted);">${o.phone}</span></div>
+          <div class="order-address">📍 ${o.address || 'Address not given'}</div>
+          <div class="order-items">🍽️ ${o.items}</div>
+
+          <!-- HIGHLIGHTED UTR DETAILS -->
+          <div class="utr-badge-box">
+            <span>UTR No: <b style="color:#fff; letter-spacing:1px;">${o.txn_id || 'N/A'}</b></span>
+            <span style="font-weight:800; color:${o.payment_status === 'VERIFIED_PAID' ? 'var(--success)' : '#F59E0B'};">
+              ${o.payment_status === 'VERIFIED_PAID' ? '✓ Verified' : '⏳ Verify in PhonePe'}
+            </span>
+          </div>
+
+          <div class="order-foot">
+            <span class="order-price">₹${o.total}</span>
+            ${isHistory ? `
+              <span style="background:${o.status === 'Delivered' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}; color:${o.status === 'Delivered' ? 'var(--success)' : 'var(--primary)'}; border:1px solid${o.status === 'Delivered' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:800;">
+                ${o.status === 'Delivered' ? '✓ Delivered' : '✕ Cancelled (Fake UTR)'}
+              </span>
+            ` : `
+              <div style="display:flex; gap:6px;">
+                ${isPending ? `
+                  <button class="btn-action" style="background:#10B981; padding:6px 10px; font-size:11px;" onclick="updateStatus('${o.order_id}', 'Preparing')">Accept (UTR OK)</button>
+                  <button class="btn-del" onclick="updateStatus('${o.order_id}', 'Cancelled')">Reject Fake</button>
+                ` : `
+                  <select class="status-select" onchange="updateStatus('${o.order_id}', this.value)">
+                    <option value="Preparing" ${o.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                    <option value="Out for Delivery" ${o.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                    <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Mark Delivered</option>
+                    <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancel Order</option>
+                  </select>
+                `}
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    async function updateStatus(orderId, status) {
+      await fetch('/api/admin/update-status', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ order_id: orderId, status })
+      });
+      loadOrders();
+    }
+
+    async function loadMenu() {
+      const res = await fetch('/api/menu');
+      rawMenuItems = await res.json();
+      renderMenuItems();
+    }
+
+    function renderMenuItems() {
+      const q = document.getElementById("menuSearchInput").value.trim().toLowerCase();
+      const filtered = rawMenuItems.filter(m => {
+        return (!q || m.name.toLowerCase().includes(q) || m.category.toLowerCase().includes(q));
+      });
+
+      const con = document.getElementById("menuContainer");
+      if (!filtered.length) {
+        con.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:12px;">No dishes match search.</div>';
+        return;
+      }
+
+      con.innerHTML = filtered.map(m => `
+        <div class="menu-item-row">
+          <img class="menu-thumb" src="${m.img || DEFAULT_FOOD_IMAGE}" onerror="this.src='${DEFAULT_FOOD_IMAGE}'" alt="${m.name}">
+          <div class="menu-details">
+            <div class="menu-name">${m.name}</div>
+            <div class="menu-meta">₹${m.price} • ${m.category}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-edit" onclick="editItem(${m.id})">Edit</button>
+            <button class="btn-del" onclick="deleteItem(${m.id})">Del</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function saveMenuItem() {
+      const id = document.getElementById("menuId").value;
+      const name = document.getElementById("menuName").value.trim();
+      const category = document.getElementById("menuCategory").value;
+      const price = document.getElementById("menuPrice").value;
+      const img = document.getElementById("menuImg").value.trim() || DEFAULT_FOOD_IMAGE;
+      const desc = document.getElementById("menuDesc").value.trim();
+
+      if (!name || !price) return alert("Dish name aur price required!");
+
+      const endpoint = id ? '/api/admin/menu/edit' : '/api/admin/menu/add';
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id, name, category, price, img, desc })
+      });
+
+      resetMenuForm();
+      loadMenu();
+    }
+
+    function editItem(id) {
+      const it = rawMenuItems.find(x => x.id == id);
+      if (!it) return;
+      document.getElementById("menuId").value = it.id;
+      document.getElementById("menuName").value = it.name;
+      document.getElementById("menuCategory").value = it.category;
+      document.getElementById("menuPrice").value = it.price;
+      document.getElementById("menuImg").value = it.img;
+      document.getElementById("menuDesc").value = it.desc;
+
+      document.getElementById("menuFormTitle").innerText = `Edit: ${it.name}`;
+      document.getElementById("saveMenuBtn").innerText = "Update Dish";
+      document.getElementById("cancelMenuBtn").style.display = "inline-block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetMenuForm() {
+      document.getElementById("menuId").value = "";
+      document.getElementById("menuName").value = "";
+      document.getElementById("menuPrice").value = "";
+      document.getElementById("menuImg").value = "";
+      document.getElementById("menuDesc").value = "";
+      document.getElementById("menuFormTitle").innerText = "Add New Food Dish";
+      document.getElementById("saveMenuBtn").innerText = "+ Add Dish";
+      document.getElementById("cancelMenuBtn").style.display = "none";
+    }
+
+    async function deleteItem(id) {
+      if (!confirm("Is dish ko menu se delete karna hai?")) return;
+      await fetch('/api/admin/menu/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id })
+      });
+      loadMenu();
+    }
+
+    async function loadUsers() {
+      const res = await fetch('/api/admin/users');
+      if (res.status === 401) return verifyAdminAccess();
+      rawUsersList = await res.json();
+      renderUsersList();
+    }
+
+    function renderUsersList() {
+      const q = document.getElementById("userSearchInput").value.trim().toLowerCase();
+      const filtered = rawUsersList.filter(u => {
+        return (!q || (u.phone && u.phone.toLowerCase().includes(q)) || (u.name && u.name.toLowerCase().includes(q)));
+      });
+
+      const con = document.getElementById("usersContainer");
+      if (!filtered.length) {
+        con.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:12.5px;">No users match search.</div>';
+        return;
+      }
+
+      con.innerHTML = filtered.map(u => `
+        <div class="user-card">
+          <img class="user-dp" src="${u.avatar || DEFAULT_USER_AVATAR}" onerror="this.src='${DEFAULT_USER_AVATAR}'" alt="DP">
+          <div class="user-info">
+            <div class="user-name">${u.name}</div>
+            <div class="user-phone">${u.phone}</div>
+            <div class="user-tag" style="color:${u.is_blocked ? '#EF4444' : '#10B981'};">
+              ${u.is_blocked ? '● BLOCKED' : '● ACTIVE'}
+            </div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-del" style="background:${u.is_blocked ? 'rgba(16,185,129,0.15)' : ''}; color:${u.is_blocked ? '#10B981' : ''};" onclick="toggleBlock(${u.id}, ${u.is_blocked ? 0 : 1})">
+              ${u.is_blocked ? 'Unblock' : 'Block'}
+            </button>
+            <button class="btn-del" onclick="deleteUser(${u.id})">Delete</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function toggleBlock(id, is_blocked) {
+      await fetch('/api/admin/user/toggle-block', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id, is_blocked })
+      });
+      loadUsers();
+    }
+
+    async function deleteUser(id) {
+      if (!confirm("Is user ko permanently delete karna hai?")) return;
+      await fetch('/api/admin/user/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id })
+      });
+      loadUsers();
+    }
+
+    async function loadSettings() {
+      const res = await fetch('/api/admin/settings');
+      if (res.status === 401) return verifyAdminAccess();
+      const st = await res.json();
+      document.getElementById("settingUpiVpa").value = st.upi_vpa || '';
+      document.getElementById("settingPayeeName").value = st.payee_name || '';
+
+      const preview = document.getElementById("settingQrPreview");
+      const noTxt = document.getElementById("noQrText");
+      if (st.custom_qr_image) {
+        currentUploadedQr = st.custom_qr_image;
+        preview.src = currentUploadedQr;
+        preview.style.display = "block";
+        noTxt.style.display = "none";
+      } else {
+        currentUploadedQr = "";
+        preview.style.display = "none";
+        noTxt.style.display = "block";
+      }
+    }
+
+    function handleAdminQrUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentUploadedQr = e.target.result;
+        const preview = document.getElementById("settingQrPreview");
+        preview.src = currentUploadedQr;
+        preview.style.display = "block";
+        document.getElementById("noQrText").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeCustomQr() {
+      currentUploadedQr = "";
+      document.getElementById("settingQrPreview").style.display = "none";
+      document.getElementById("noQrText").style.display = "block";
+      document.getElementById("qrFileInput").value = "";
+    }
+
+    async function savePaymentSettings() {
+      const upi_vpa = document.getElementById("settingUpiVpa").value.trim();
+      const payee_name = document.getElementById("settingPayeeName").value.trim();
+
+      if (!upi_vpa) return alert("UPI ID enter kijiye!");
+
+      const res = await fetch('/api/admin/settings/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          upi_vpa: upi_vpa,
+          payee_name: payee_name,
+          custom_qr_image: currentUploadedQr
+        })
+      });
+
+      const d = await res.json();
+      if (d.success) {
+        alert("✅ Settings saved successfully!");
+      }
+    }
+
+    verifyAdminAccess();
+    setInterval(() => {
+      const activeTabOrders = document.getElementById("tab-orders").classList.contains("active-tab");
+      const activeTabHistory = document.getElementById("tab-history").classList.contains("active-tab");
+      const isSearching = document.getElementById("liveSearchInput").value || document.getElementById("historySearchInput").value;
+      if ((activeTabOrders || activeTabHistory) && !isSearching) {
+        loadOrders();
+      }
+    }, 6000);
+  </script>
+</body>
+</html>
